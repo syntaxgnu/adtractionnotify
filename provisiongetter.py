@@ -1,13 +1,13 @@
 ''' Get provision from Adtraction '''
 import logging
+import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import time
 
-USERNAME='<USERNAME>'
-PASSWORD='<PASSWORD>'
+USERNAME = '<USERNAME>'
+PASSWORD = '<PASSWORD>'
 
 class ProvisionGetter():
     ''' Class that gets yesterdays provision and sends
@@ -25,22 +25,25 @@ class ProvisionGetter():
         ''' Get provision and return it '''
         provision = ''
         self.driver.get('https://adtraction.com/sv/login')
-        self.driver.find_element_by_css_selector('form#login input[id="username"]').send_keys(USERNAME)
-        self.driver.find_element_by_css_selector('form#login input[id="password"]').send_keys(PASSWORD)
+        self.driver.find_element_by_css_selector('form#login input[id="username"]')\
+                                                 .send_keys(USERNAME)
+        self.driver.find_element_by_css_selector('form#login input[id="password"]')\
+                                                 .send_keys(PASSWORD)
         self.driver.find_element_by_id('loginbutton').click()
         self.logging.debug('Clicked login button')
 
-        while(provision == ''):
+        while provision == '':
             self.logging.debug('Waiting for element')
             element = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="main-stats"]/div/div[2]/div/span'))
+                EC.presence_of_element_located((By.XPATH,
+                                                '//*[@id="main-stats"]/div/div[2]/div/span'))
             )
             provision = element.text
             if provision == '':
                 self.logging.debug('element hasn\'t showed up yet')
                 time.sleep(1)
             else:
-                self.logging.debug('Got provision: ' + str(provision))
+                self.logging.debug('Got provision: %s', str(provision))
 
         return provision
 
