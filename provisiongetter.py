@@ -1,33 +1,52 @@
 ''' Get provision from Adtraction '''
+import logging
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 
-USERNAME=<username_here>
-PASSWORD=<password_here>
+USERNAME='<USERNAME>'
+PASSWORD='<PASSWORD>'
 
 class ProvisionGetter():
+    ''' Class that gets yesterdays provision and sends
+        a notification to the user '''
+    def __init__(self):
+        headless_option = webdriver.ChromeOptions()
+        headless_option.add_argument('headless')
 
-headless_option = webdriver.ChromeOptions()
-headless_option.add_argument('headless')
+        self.driver = webdriver.Chrome(options=headless_option)
 
-driver = webdriver.Chrome(options=headless_option)
+        self.logging = logging.getLogger('ProvisionGetter')
+        self.logging.setLevel(level=logging.DEBUG)
 
-driver.get('https://adtraction.com/sv/login')
-driver.find_element_by_css_selector('form#login input[id="username"]').send_keys(USERNAME)
-driver.find_element_by_css_selector('form#login input[id="password"]').send_keys(PASSWORD)
-driver.find_element_by_id('loginbutton').click()
+    def get_provision(self):
+        ''' Get provision and return it '''
+        provision = ''
+        self.driver.get('https://adtraction.com/sv/login')
+        self.driver.find_element_by_css_selector('form#login input[id="username"]').send_keys(USERNAME)
+        self.driver.find_element_by_css_selector('form#login input[id="password"]').send_keys(PASSWORD)
+        self.driver.find_element_by_id('loginbutton').click()
+        self.logging.debug('Clicked login button')
 
-provision = ''
-while(provision == ''):
-    element = WebDriverWait(driver, 10).until(
+        while(provision == ''):
+            self.logging.debug('Waiting for element')
+            element = WebDriverWait(self.driver, 10).until(
             EC.presence_of_element_located((By.XPATH, '//*[@id="main-stats"]/div/div[2]/div/span'))
-        )
-    provision = element.text
-    time.sleep(1)
+            )
+            provision = element.text
+            if provision == '':
+                self.logging.debug('element hasn\'t showed up yet')
+                time.sleep(1)
+            else:
+                self.logging.debug('Got provision: ' + str(provision))
 
-print(provision)
+        return provision
 
-driver.quit()
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        ''' Handle cleanup of driver '''
+        self.driver.quit()
