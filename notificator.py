@@ -2,13 +2,11 @@
 import logging
 from pushbullet import Pushbullet
 
-API_KEY = '<API_KEY>'
-
 class Notificator():
     ''' The class that handles the pushing '''
-    def __init__(self):
+    def __init__(self, api_key):
         ''' Initialize pushbullet '''
-        self.pushbullet = Pushbullet(API_KEY)
+        self.pushbullet = Pushbullet(api_key)
         self.logging = logging.getLogger('Notificator')
         self.logging.setLevel(level=logging.DEBUG)
 

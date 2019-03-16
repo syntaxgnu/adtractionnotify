@@ -6,16 +6,15 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-USERNAME = '<USERNAME>'
-PASSWORD = '<PASSWORD>'
-
 class ProvisionGetter():
     ''' Class that gets yesterdays provision and sends
         a notification to the user '''
-    def __init__(self):
+    def __init__(self, username, password):
         headless_option = webdriver.ChromeOptions()
         headless_option.add_argument('headless')
 
+        self.username = username
+        self.password = password
         self.driver = webdriver.Chrome(options=headless_option)
 
         self.logging = logging.getLogger('ProvisionGetter')
@@ -24,12 +23,12 @@ class ProvisionGetter():
     def get_provision(self):
         ''' Get provision and return it '''
         provision = ''
-        self.driver.get('https://adtraction.com/sv/login')
-        self.driver.find_element_by_css_selector('form#login input[id="username"]')\
-                                                 .send_keys(USERNAME)
-        self.driver.find_element_by_css_selector('form#login input[id="password"]')\
-                                                 .send_keys(PASSWORD)
-        self.driver.find_element_by_id('loginbutton').click()
+        self.driver.get('https://adtraction.com/se/login')
+        self.driver.find_element_by_name('email')\
+                                                 .send_keys(self.username)
+        self.driver.find_element_by_name('password')\
+                                                 .send_keys(self.password)
+        self.driver.find_element_by_xpath('/html/body/main/article/div/div/div[1]/div/div/div/div/div[2]/form/fieldset/button').click()
         self.logging.debug('Clicked login button')
 
         while provision == '':
